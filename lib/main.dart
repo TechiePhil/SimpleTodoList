@@ -21,14 +21,16 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  // current page to display when the app launches
   int _currentIndex = 0;
+  // list of all the pages
   List _pages = [];
   Widget _currentPage;
   
   @override
   void initState() {
     super.initState();
-    
+    // initialize page list
     _pages..add(TasksListPage())..add(CompletedTasksPage());
     _currentPage = TasksListPage();
   }

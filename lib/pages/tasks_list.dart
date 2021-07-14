@@ -55,6 +55,7 @@ class _TasksListPageState extends State<TasksListPage> {
     );
   }
   
+  // view to display when the task list is empty
   Widget emptyTaskList = Container(
     child: Center(
       child: Column(

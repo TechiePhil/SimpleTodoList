@@ -33,7 +33,7 @@ class _TasksListPageState extends State<TasksListPage> {
             icon: Icon(Icons.add),
             onPressed: () {
               // functionality to add new task to the list
-              showInputDialog(context);
+              showInputModal(context);
             }
           ),
         ]
@@ -48,8 +48,8 @@ class _TasksListPageState extends State<TasksListPage> {
         ),
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add),
-          onPressed: () {
-            showInputDialog(context);
+          onPressed: () async {
+            showInputModal(context);
           }
         )
     );
@@ -75,16 +75,32 @@ class _TasksListPageState extends State<TasksListPage> {
     ),
   );
   
-  void showInputDialog(BuildContext context) {
-    showModalBottomSheet(context: context, builder: (context) {
-      return GestureDetector(
-        child: SingleChildScrollView(
-          child: Container(
-            margin: EdgeInsets.all(10),
-            padding: EdgeInsets.all(10),
-            height: 116,
-            child: SingleChildScrollView(
-              child: Column(
+  // function to add the new task to the task list
+  void addTask(String task) {
+    setState(() {
+      database.unchecked.add(
+        TodoItem(
+          id: Random().nextInt(9999999).toString(),
+          checked: 'no',
+          note: task,
+        )
+      );
+    });
+  }
+  
+  // open up a modal with the input text field to add new task
+  showInputModal(BuildContext context) async {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return GestureDetector(
+          child: Center(
+            child: SimpleDialog(
+              titlePadding: EdgeInsets.only(left:5, top:5, bottom:10),
+              contentPadding: EdgeInsets.only(left:5, right:5),
+              title: Text('Add New Task'),
+              children: <Widget>[
+              Column(
                 children: <Widget>[
                   TextField(
                     controller: inputController,
@@ -108,6 +124,7 @@ class _TasksListPageState extends State<TasksListPage> {
                             Colors.grey.shade100,
                           )
                         ),
+                        // close the modal
                         onPressed: () {
                           Navigator.pop(context);
                         }
@@ -120,17 +137,10 @@ class _TasksListPageState extends State<TasksListPage> {
                             Colors.greenAccent.shade100
                           ),
                         ),
+                        // add a new (nonempty) task to the list
                         onPressed: () {
                           if (inputController.text.isNotEmpty) {
-                            setState(() {
-                              database.unchecked.add(
-                                TodoItem(
-                                  id: Random().nextInt(9999999).toString(),
-                                  checked: 'no',
-                                  note: inputController.text,
-                                )
-                              );
-                            });
+                            addTask(inputController.text);
                             // with each new task, update the database .json file
                             DatabaseFileRoutines().writeToDatabase(
                               databaseToJsonString(
@@ -139,7 +149,9 @@ class _TasksListPageState extends State<TasksListPage> {
                             // show database string
                             // print('this: ${databaseToJsonString(database, 'unchecked', 'checked')}');
                           }
+                          // clear the current text from the input text field
                           inputController.clear();
+                          // close the modal sheet
                           Navigator.pop(context);
                         }
                       ),
@@ -147,13 +159,12 @@ class _TasksListPageState extends State<TasksListPage> {
                   ),
                 ]
               ),
+              ]
             )
-          ),
-        ),
-        behavior: HitTestBehavior.opaque,
-        onTap: () {}
-      );
-    });
+          )
+        );
+      }
+    );
   }
   
   // load todo list from database file (.json file)
@@ -169,7 +180,6 @@ class _TasksListPageState extends State<TasksListPage> {
   // build the todo list and display them
   Widget buildListView(AsyncSnapshot snapshot) {
     return ListView.builder(
-      // cross-check "itemCount: snapshot.data.length", it has a logic error!
       itemCount: database.unchecked.length,
       itemBuilder: (BuildContext context, int index) {
         return Dismissible(

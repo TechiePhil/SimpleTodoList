@@ -39,6 +39,7 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _currentPage,
+      // app's main navigation bar
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         items: <BottomNavigationBarItem>[
